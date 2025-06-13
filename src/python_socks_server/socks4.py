@@ -1,4 +1,5 @@
 import logging
+import os
 import select
 import socket
 import struct
@@ -13,8 +14,8 @@ logger = logging.getLogger(__name__)
 class Socks4Server(SocksServer):
     def __init__(
             self,
-            host: str = "127.0.0.1",
-            port: int = 1080,
+            host: str = os.environ.get("SOCKS_HOST", "127.0.0.1"),
+            port: int = int(os.environ.get("SOCKS_PORT", 1080)),
     ):
         self.host = host
         self.port = port

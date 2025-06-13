@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 class Socks5Server(SocksServer):
     def __init__(
             self,
-            host: str = "127.0.0.1",
-            port: int = 1080,
+            host: str = os.environ.get("SOCKS_HOST", "127.0.0.1"),
+            port: int = int(os.environ.get("SOCKS_PORT", 1080)),
             username: str = os.environ.get("SOCKS_USER", "user"),
             password: str = os.environ.get("SOCKS_PASSWORD", "password")
     ):
