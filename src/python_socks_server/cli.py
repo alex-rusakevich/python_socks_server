@@ -6,11 +6,12 @@ from pathlib import Path
 import click
 from dotenv import find_dotenv, load_dotenv
 
+from python_socks_server.logging import setup_logger
 from .socks4 import Socks4Server
 from .socks5 import Socks5Server
 
 load_dotenv()
-logging.basicConfig(level=logging.INFO)
+setup_logger()
 
 logger = logging.getLogger(__name__)
 

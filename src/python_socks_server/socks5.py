@@ -1,4 +1,5 @@
 import logging
+import os
 import select
 import socket
 import struct
@@ -15,8 +16,8 @@ class Socks5Server(SocksServer):
             self,
             host: str = "127.0.0.1",
             port: int = 1080,
-            username: str = "user",
-            password: str = "password"
+            username: str = os.environ.get("SOCKS_USER", "user"),
+            password: str = os.environ.get("SOCKS_PASSWORD", "password")
     ):
         self.host = host
         self.port = port
@@ -37,7 +38,7 @@ class Socks5Server(SocksServer):
         while self.running:
             try:
                 client_socket, client_address = self.server_socket.accept()
-                logger.info(f"New connection from {client_address}")
+                logger.info(f"New connection from {client_address[0]}:{client_address[1]}")
                 client_thread = threading.Thread(
                     target=self.handle_client, args=(client_socket, client_address)
                 )
@@ -76,7 +77,7 @@ class Socks5Server(SocksServer):
         if not data:
             return False
 
-        logger.info(f"Received client greeting: {data.hex()}")
+        logger.debug(f"Received client greeting: {data.hex()}")
 
         # Check SOCKS version
         if data[0] != 0x05:
@@ -87,20 +88,20 @@ class Socks5Server(SocksServer):
         nmethods = data[1]
         methods = data[2: 2 + nmethods]
 
-        logger.info(f"Client auth methods: {methods.hex()}")
+        logger.debug(f"Client auth methods: {methods.hex()}")
 
         # Check if username/password auth is supported by client
         if 0x02 in methods:  # Username/password auth
             # Send auth method choice
             client_socket.send(b"\x05\x02")  # SOCKS5, username/password auth
-            logger.info("Sent auth method choice: 0x05 0x02")
+            logger.debug("Sent auth method choice: 0x05 0x02")
 
             # Read username/password
             auth_data = client_socket.recv(1024)
             if not auth_data:
                 return False
 
-            logger.info(f"Received auth data: {auth_data.hex()}")
+            logger.debug(f"Received auth data: {auth_data.hex()}")
 
             # Parse username and password
             if auth_data[0] != 0x01:  # Check auth version
@@ -112,7 +113,7 @@ class Socks5Server(SocksServer):
             plen = auth_data[2 + ulen]
             password = auth_data[3 + ulen: 3 + ulen + plen].decode()
 
-            logger.info(f"Received username: {username}, password: {password}")
+            # logger.info(f"Received username: {username}, password: {password}")
 
             # Verify credentials
             if username == self.username and password == self.password:
