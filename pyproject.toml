@@ -1,0 +1,18 @@
+[project]
+name = "python-socks-server"
+version = "1.0.0"
+description = "Python SOCKS 5 server with login and password support"
+authors = [
+    {name = "Alexander Rusakevich",email = "mr.alexander.rusakevich@gmail.com"}
+]
+license = {text = "GPLv3"}
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "python-dotenv (>=1.1.0,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
