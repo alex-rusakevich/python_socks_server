@@ -3,15 +3,18 @@ name = "python-socks-server"
 version = "1.0.0"
 description = "Python SOCKS 5 server with login and password support"
 authors = [
-    {name = "Alexander Rusakevich",email = "mr.alexander.rusakevich@gmail.com"}
+    { name = "Alexander Rusakevich", email = "mr.alexander.rusakevich@gmail.com" }
 ]
-license = {text = "GPLv3"}
+license = { text = "GPLv3" }
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "python-dotenv (>=1.1.0,<2.0.0)"
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "click (>=8.2.1,<9.0.0)"
 ]
 
+[project.scripts]
+socks-server = "python_socks_server.cli:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

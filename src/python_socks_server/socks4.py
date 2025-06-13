@@ -1,25 +1,20 @@
 import logging
-import os
 import select
 import socket
 import struct
 import threading
-from pathlib import Path
 from typing import Tuple
 
-from dotenv import find_dotenv, load_dotenv
+from python_socks_server.server import SocksServer
 
-load_dotenv()
-
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class Socks4Server:
+class Socks4Server(SocksServer):
     def __init__(
-        self,
-        host: str = os.getenv("PYTHON_SOCKS_SERVER_HOST", "127.0.0.1"),
-        port: int = int(os.getenv("PYTHON_SOCKS_SERVER_PORT", 1080)),
+            self,
+            host: str = "127.0.0.1",
+            port: int = 1080,
     ):
         self.host = host
         self.port = port
@@ -27,7 +22,6 @@ class Socks4Server:
         self.running = False
 
     def start(self):
-        """Start the SOCKS4 proxy server"""
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_socket.bind((self.host, self.port))
@@ -35,9 +29,6 @@ class Socks4Server:
         self.running = True
 
         logger.info(f"SOCKS4 proxy server started on {self.host}:{self.port}")
-
-        env_path = Path(find_dotenv()).resolve()
-        logger.info(f"The .env file is located at '{env_path}'")
 
         while self.running:
             try:
@@ -55,13 +46,12 @@ class Socks4Server:
                 break
 
     def stop(self):
-        """Stop the SOCKS4 proxy server"""
         self.running = False
         if self.server_socket:
             self.server_socket.close()
 
     def handle_client(
-        self, client_socket: socket.socket, client_address: Tuple[str, int]
+            self, client_socket: socket.socket, client_address: Tuple[str, int]
     ):
         """Handle client connection"""
         try:
@@ -114,7 +104,7 @@ class Socks4Server:
             if domain_start == -1:
                 return False
 
-            target_host = data[domain_start + 1 : -1].decode()
+            target_host = data[domain_start + 1: -1].decode()
             logger.info(f"SOCKS4a request for domain: {target_host}")
         else:
             target_host = target_ip
@@ -162,13 +152,3 @@ class Socks4Server:
                 except Exception as e:
                     logger.error(f"Error forwarding data: {e}")
                     return
-
-
-if __name__ == "__main__":
-    proxy = Socks4Server()
-
-    try:
-        proxy.start()
-    except KeyboardInterrupt:
-        logger.info("Shutting down server...")
-        proxy.stop()
