@@ -1,3 +1,4 @@
+import os
 import socket
 import sys
 from pathlib import Path
@@ -7,8 +8,6 @@ from dotenv import load_dotenv
 
 from python_socks_server.logging import setup_logger
 
-PROXY_PORT = 1080
-
 load_dotenv(dotenv_path=Path(__file__).parent / '.env', verbose=True)
 setup_logger()
 
@@ -17,7 +16,10 @@ def is_socks_running():
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(1)
-            s.bind(('127.0.0.1', PROXY_PORT))
+            s.bind((
+                os.environ.get("SOCKS_HOST", "127.0.0.1"),
+                int(os.environ.get("SOCKS_PORT", 1080))
+            ))
         return False
     except OSError:
         return True
@@ -34,7 +36,8 @@ class SocksProxyManager:
         self.running = True
         try:
             from python_socks_server.socks5 import Socks5Server
-            server = Socks5Server(host='127.0.0.1', port=PROXY_PORT)
+            
+            server = Socks5Server()
             server.start()
         except ImportError:
             print("Error: Could not import python_socks_server", file=sys.stderr)
