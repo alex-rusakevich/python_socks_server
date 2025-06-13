@@ -1,7 +1,7 @@
-Python SOCKS server
+Python SOCKS 4 server
 ===
 
-This program is a SOCKS server which does not require `sudo`, `glibc`, `ssh` etc.
+This program is a SOCKS 4 server which does not require `sudo`, `glibc`, `ssh` etc.
 The only requirements are Python and `pip`.
 
 ## Development setup
