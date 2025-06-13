@@ -1,5 +1,6 @@
 import socket
 import sys
+from pathlib import Path
 from threading import Thread
 
 from dotenv import load_dotenv
@@ -8,7 +9,7 @@ from python_socks_server.logging import setup_logger
 
 PROXY_PORT = 1080
 
-load_dotenv()
+load_dotenv(dotenv_path=Path(__file__).parent / '.env', verbose=True)
 setup_logger()
 
 
